@@ -1,0 +1,9 @@
+# IntelliJ IDEA
+.idea/
+deploy-new.iml
+
+# Anisible
+ansible/*.retry
+
+# Vim
+*.swp
