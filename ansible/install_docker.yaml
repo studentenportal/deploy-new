@@ -1,0 +1,123 @@
+# Copyright (C)  2018 Matt Baumann
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+---
+# Playbook installs docker on the server
+# Update APT + Dependencies
+# Docker install
+# (Install administrative utilities, Ansible)
+# Adding current user to docker prosix group
+# Activating docker swarm mode
+
+- name: "Install docker"
+  hosts: "<<< host here >>>"
+  remote_user: "<<< host username >>>"
+  become: yes
+  tasks:
+    # prepare and dependencies
+
+    - name: Update APT cache
+      apt: update-cache=yes
+
+    - name: Installs docker dependencies
+      apt:
+        name: "{{ item }}"
+        state: latest
+        update-cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg2
+        - software-properties-common
+
+      # Docker install
+    - name: Installs docker public key
+      apt_key:
+        url: "https://download.docker.com/linux/debian/gpg"
+        id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+        state: presen
+
+    - name: Installs docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_lsb.codename }} stable"
+        filename: "docker-stable"
+
+    - name: Install docker
+      apt:
+        name: "docker-ce=18.03.1~ce-0~debian"
+        state: present
+        update_cache: yes
+      ignore_errors: yes
+
+    - name: Start docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+      # Administration utilities install
+#    - name: Installs python for ansible
+#      apt:
+#        name: "{{ item }}"
+#        state: latest
+#      become: yes
+#      with_items:
+#        - python
+#        - python-pip
+#      tags: ansible-inst
+
+#    - name: Installs ansible admin dependencies
+#      command: "pip install {{ item }}"
+#      become: yes
+#      ignore_errors: yes
+#      loop:
+#        - docker
+#        - docker-compose
+#      become: no
+
+      # Allow sudo-less docker management
+    - name: Add docker user group
+      group: name=docker state=present
+
+    - name: Add current user to docker group
+      user:
+        name: "{{ nsible_user_id  }}"
+        append: yes
+        groups:
+          - docker
+
+    - name: Restart docker to finish install
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+
+      # Init docker swarm on single server
+    - name: get docker info
+      shell: docker info
+      register: docker_info
+      changed_when: false
+
+    - name: Init docker swarm mode
+      shell: docker swarm init
+      when: "docker_info.stdout.find('Swarm: inactive') != -1"
+
+    - name: get docker swarm manager token
+      shell: docker swarm join-token -q manager
+      register: manager_token
+
+    - name: display swarm manager token
+      debug: msg="{{ manager_token }}"

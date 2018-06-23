@@ -1,0 +1,84 @@
+# Copyright (C)  2018 Matt Baumann
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+---
+- name: Executes docker compose on server
+  hosts: "<<< host here >>>"
+  remote_user: "<<< host username >>>"
+  vars:
+
+    # Whether containers will be added or removed from infrastructure
+    # OPTIONS:
+    # * present - Add and complete infrastructure according to compose file
+    # * absent  - Remove all containers and networks according to compose file
+    #
+    # ATTENTION: option absent will stop, remove, delete all non-volume data!
+    # ATTENTION: option absent will remove full infrastructure, disruption of service!
+    DOCKER_CONTAINER_STATE: present
+
+    # Name of the project mentioned
+    PROJECT_NAME: "<<< docker project name here >>>"
+  tasks:
+  - name: Docker container definitions
+    block:
+
+      - name: Creates temp folder for project
+        tempfile:
+          state: directory
+          prefix: "ansibleDockerCompose-"
+        register: tempfolder
+
+      - name: Create directories
+        file:
+          path: "{{ tempfolder.path }}/{{ item.path }}"
+          state: directory
+          mode: "{{ item.mode }}"
+        with_filetree: compose/
+        when: item.state == "directory"
+
+      - name: Template files
+        template:
+          src: "{{ item.src }}"
+          dest: "{{ tempfolder.path }}/{{ item.path }}"
+          mode: "{{ item.mode }}"
+        with_filetree: compose/
+        when: item.state == "file"
+
+      - name: Recreate symlinks
+        file:
+          src: "{{ item.src }}"
+          dest: "{{ tempfolder.path }}/{{ item.path }}"
+          state: link
+          force: yes
+          mode: "{{ item.mode }}"
+        with_filetree: compose/
+        when: item.state == "link"
+
+      - name: Docker Compose
+        docker_service:
+          project_name: "{{ PROJECT_NAME }}"
+          project_src: "{{ tempfolder.path }}"
+          state: "{{ DOCKER_CONTAINER_STATE }}"
+        become: root
+
+    always:
+      - file:
+          path: "{{ tempfolder.path }}"
+          state: absent
+        when: not compose_project_remain
+
+      - debug:
+          msg: "{{ tempfolder.path }}"
+        when: compose_project_remain
