@@ -1,5 +1,7 @@
 version: "3.4"
 services:
+
+# postgres - Database server
   postgres:
     image: postgres:9.3-alpine
 
@@ -38,6 +40,7 @@ services:
           cpus: "0.125"
           memory: "750M"
 
+# studentenportal - Application server with python
   studentenportal:
     image: studentenportal/dev:latest
 
@@ -76,13 +79,16 @@ services:
         memory: "750M"
 
   # TODO: Add front-end proxy
-  # TODO: Add phpMyAdmin
 
+# PhpMyAdmin - Admin console for database (provision)
   phpMyAdmin:
     image: phpmyadmin/phpmyadmin
 
     networks:
       - database-net
+
+    ports:
+      - "80:8000/tcp"
 
     mode: replicated
     replicas: 0
@@ -98,7 +104,27 @@ services:
         cpus: "0.075"
         memory: "250M"
 
-  # TODO: Add Portainer
+# Portainer - Admin console for docker
+  portainer:
+    image: portainer/portainer
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    ports:
+      - "9000:9000/tcp"
+
+    mode: replicated
+    replicas: 0
+
+    resources:
+      limits:
+        cpus: "0.1"
+        memory: "500M"
+      reservations:
+        cpus: "0.075"
+        memory: "250M"
+
 
 networks:
   database-net:
