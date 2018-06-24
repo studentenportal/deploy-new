@@ -1,45 +1,83 @@
 version: "3.4"
 services:
   postgres:
-      image: postgres:9.3-alpine
+    image: postgres:9.3-alpine
 
-      volumes:
-        - "/data/docker/postgres:/var/lib/postgresql/data:rw"
+    volumes:
+      - "/data/docker/postgres:/var/lib/postgresql/data:rw"
 
-      environment:
-        POSTGRES_USER: "{{ postgres_user }}"
-        POSTGRES_PASSWORD: "{{ postgres_passwd }}"
+    environment:
+      POSTGRES_USER: "{{ postgres_user }}"
+      POSTGRES_PASSWORD: "{{ postgres_passwd }}"
 
-        POSTGRES_DB: "{{ postgres_database }}"
+      POSTGRES_DB: "{{ postgres_database }}"
 
-      networks:
-          studentenportal-dev:
-            aliases:
-              - database
+    networks:
+        studentenportal-dev:
+          aliases:
+            - database
+            - postgres
 
-      # TODO: Add SysLog logging service
+    # TODO: Add SysLog logging service
 
-      deploy:
-        mode: replicated
-        replicas: 1
+    deploy:
+      mode: replicated
+      replicas: 1
 
-        restart_policy:
-          condition: on-failure
-          delay: 1s
-          max_attempts: 5
-          window: 20s
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 5
+        window: 20s
 
-        resources:
-          limits:
-            cpus: "0.25"
-            memory: "1G"
-          reservations:
-            cpus: "0.125"
-            memory: "750M"
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "1G"
+        reservations:
+          cpus: "0.125"
+          memory: "750M"
 
-    # TODO: Add application server
-    # TODO: Add front-end proxy
-    # TODO: Add phpMyAdmin
+  studentenportal:
+    image: studentenportal/dev:latest
+
+    volumes:
+      - ./:/srv/www/studentenportal
+
+    environment:
+      DB_HOST: "database"
+      DB_USER: "{{ postgres_user }}"
+      DB_PASSWORD: "{{ postgres_passwd }}"
+      DJANGO_DEBUG: "True"
+
+    networks:
+      database-net:
+        aliases:
+          - application
+
+      proxy-net:
+        aliases:
+          - application
+
+    mode: replicated
+    replicas: 1
+    restart_policy:
+      condition: on-failure
+      delay: 1s
+      max_attempts: 5
+      window: 20s
+
+    resources:
+      limits:
+        cpus: "0.25"
+        memory: "1G"
+      reservations:
+        cpus: "0.125"
+        memory: "750M"
+
+  # TODO: Add front-end proxy
+  # TODO: Add phpMyAdmin
+  # TODO: Add Portainer
 
 networks:
   database-net:
