@@ -77,6 +77,27 @@ services:
 
   # TODO: Add front-end proxy
   # TODO: Add phpMyAdmin
+
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin
+
+    networks:
+      - database-net
+
+    mode: replicated
+    replicas: 0
+
+    environment:
+      PMA_HOST: database
+
+    resources:
+      limits:
+        cpus: "0.1"
+        memory: "500M"
+      reservations:
+        cpus: "0.075"
+        memory: "250M"
+
   # TODO: Add Portainer
 
 networks:
