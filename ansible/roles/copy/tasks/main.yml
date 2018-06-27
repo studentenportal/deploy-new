@@ -24,11 +24,24 @@
   register: tmpfolder
   when: dest is not defined
 
+- name: Test whether the dest folder is available
+  stat: path={{ dest }}
+  register: dest_information
+  when: dest is defined
+
+- name: Create recovery copy
+  command: cp -r {{ dest }} {{ dest }}.tmp
+  when:
+    - dest is defined
+    - dest_information.stat.exists
+
 - name: Removes the previous server files
   file:
     path: "{{ dest | default(tmpfolder.path) }}"
     state: absent
-  when: delete
+  when:
+    - delete
+    - dest_information.stat.exists
 
 - name: Adds the parent folder again
   file:
@@ -58,7 +71,7 @@
         mode: "{{ mode | default(item.mode) }}"
       when:
         - item.state == "file"
-        - not item.src.endswith(".template")
+        - item.src.find(".template") == -1 # does not contain .template
       loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
     - name: Template files from {{src}} to {{ dest | default(tmpfolder.path) }}
@@ -70,7 +83,7 @@
         mode: "{{ mode | default(item.mode) }}"
       when:
         - item.state == "file"
-        - item.src.find(".template") != -1
+        - item.src.find(".template") != -1 # contains .template
       loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
 
@@ -95,8 +108,27 @@
     - name: Show root path to copy file-hierarchy to
       debug: msg="{{ dest | default(tmpfolder.path) }}"
 
-      # TODO: Change this from just removing to copy before action and move-back to original place here
     - name: Remove already written files
       file:
         path: "{{ dest | default(tmpfolder.path) }}"
         state: absent
+
+    - name: Test whether recovery copy exists
+      stat: path={{ dest }}.tmp
+      register: tmp_information
+      when: dest is defined
+
+    - name: Move recovery files back
+      command: mv -r {{ dest }}.tmp {{ dest }}
+      when:
+        - dest is defined
+        - tmp_information.stat.exists
+
+  always:
+    - name: Remove disaster copy
+      file:
+        path: "{{ dest | default(tmpfolder.path) }}.tmp"
+        state: absent
+      when:
+        - dest is defined
+        - dest_information.stat.exists
