@@ -1,0 +1,65 @@
+# Copyright (C)  2018 Matt Baumann
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+---
+# Templates files from the local project folder onto the server.
+
+- name: Creates temp folder
+  tempfile:
+    state: directory
+    prefix: "ansibleTmpFolder-"
+  register: tmpfolder
+  when: dest is not defined
+
+- name: Removes the previous server files
+  file:
+    path: '{{ dest | default(tmpfolder.path) }}'
+    state: absent
+  when: delete and dest is defined
+
+- name: Adds the parent folder again
+  file:
+    path: '{{ dest | default(tmpfolder.path) }}'
+    state: directory
+  when: delete
+
+- name: Copies the filetree from {{src}} to {{ dest | default(tmpfolder.path) }}
+  block:
+
+    - name: Create directories {{src}} to {{ dest | default(tmpfolder.path) }}
+      file:
+        path: '{{ dest | default(tmpfolder.path) }}/{{item.path | dirname }}'
+        state: directory
+      with_filetree: '{{playbook_dir}}/{{src}}'
+      become: no
+
+    - name: Template files {{src}} to {{ dest | default(tmpfolder.path) }}
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ dest | default(tmpfolder.path) }}/{{ item.path }}'
+      when: item.state == 'file'
+      with_filetree: '{{playbook_dir}}/{{src}}'
+      become: no
+
+    - name: Recreate symlinks {{src}} to {{ dest | default(tmpfolder.path) }}
+      file:
+        src: '{{ item.src }}'
+        dest: '{{ dest | default(tmpfolder.path) }}/{{ item.path }}'
+        state: link
+        force: yes
+        mode: '{{ item.mode }}'
+      when: item.state == 'link'
+      with_filetree: '{{playbook_dir}}/{{src}}'
+      become: no
