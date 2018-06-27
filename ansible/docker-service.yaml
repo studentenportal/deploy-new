@@ -18,67 +18,21 @@
   hosts: "<<< host here >>>"
   remote_user: "<<< host username >>>"
   vars:
+    STACK_FILE: "production.yaml"
 
-    # Whether containers will be added or removed from infrastructure
-    # OPTIONS:
-    # * present - Add and complete infrastructure according to compose file
-    # * absent  - Remove all containers and networks according to compose file
-    #
-    # ATTENTION: option absent will stop, remove, delete all non-volume data!
-    # ATTENTION: option absent will remove full infrastructure, disruption of service!
-    DOCKER_CONTAINER_STATE: present
-
-    # Name of the project mentioned
-    PROJECT_NAME: "<<< docker project name here >>>"
   tasks:
-  - name: Docker container definitions
-    block:
+  - name: Include password file
+    import_vars: secrets.yaml
 
-      - name: Creates temp folder for project
-        tempfile:
-          state: directory
-          prefix: "ansibleDockerCompose-"
-        register: tempfolder
+  - name: Copy Files to the server
+    import_role: name=copy
+    vars:
+       src: 'files/docker'
 
-      - name: Create directories
-        file:
-          path: "{{ tempfolder.path }}/{{ item.path }}"
-          state: directory
-          mode: "{{ item.mode }}"
-        with_filetree: compose/
-        when: item.state == "directory"
+  - name: Execute docker stack on stack-file
+    command: "docker stack -c {{ tmpfolder }}/{{ STACK_FILE }}"
 
-      - name: Template files
-        template:
-          src: "{{ item.src }}"
-          dest: "{{ tempfolder.path }}/{{ item.path }}"
-          mode: "{{ item.mode }}"
-        with_filetree: compose/
-        when: item.state == "file"
-
-      - name: Recreate symlinks
-        file:
-          src: "{{ item.src }}"
-          dest: "{{ tempfolder.path }}/{{ item.path }}"
-          state: link
-          force: yes
-          mode: "{{ item.mode }}"
-        with_filetree: compose/
-        when: item.state == "link"
-
-      - name: Docker Compose
-        docker_service:
-          project_name: "{{ PROJECT_NAME }}"
-          project_src: "{{ tempfolder.path }}"
-          state: "{{ DOCKER_CONTAINER_STATE }}"
-        become: root
-
-    always:
-      - file:
-          path: "{{ tempfolder.path }}"
-          state: absent
-        when: not compose_project_remain
-
-      - debug:
-          msg: "{{ tempfolder.path }}"
-        when: compose_project_remain
+  - name: Remove tmp-folder
+    file:
+      path: "{{ tmpfolder }}"
+      status: absent
