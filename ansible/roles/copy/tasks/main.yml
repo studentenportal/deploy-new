@@ -26,41 +26,72 @@
 
 - name: Removes the previous server files
   file:
-    path: '{{ dest | default(tmpfolder.path) }}'
+    path: "{{ dest | default(tmpfolder.path) }}"
     state: absent
-  when: delete and dest is defined
+  when: delete
 
 - name: Adds the parent folder again
   file:
-    path: '{{ dest | default(tmpfolder.path) }}'
+    path: "{{ dest | default(tmpfolder.path) }}"
+    owner: "{{ owner | default(ansible_user_id) }}"
+    group: "{{ group | default(ansible_user_id) }}"
     state: directory
   when: delete
 
 - name: Copies the filetree from {{src}} to {{ dest | default(tmpfolder.path) }}
   block:
 
-    - name: Create directories {{src}} to {{ dest | default(tmpfolder.path) }}
+    - name: Create directories in {{ dest | default(tmpfolder.path) }}
       file:
-        path: '{{ dest | default(tmpfolder.path) }}/{{item.path | dirname }}'
+        path: "{{ dest | default(tmpfolder.path) }}/{{item.path | dirname }}"
+        owner: "{{ owner | default(ansible_user_id) }}"
+        group: "{{ group | default(ansible_user_id) }}"
         state: directory
-      with_filetree: '{{playbook_dir}}/{{src}}'
-      become: no
+      loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
-    - name: Template files {{src}} to {{ dest | default(tmpfolder.path) }}
+    - name: Copy files from {{src}} to {{ dest | default(tmpfolder.path) }}
       copy:
-        src: '{{ item.src }}'
-        dest: '{{ dest | default(tmpfolder.path) }}/{{ item.path }}'
-      when: item.state == 'file'
-      with_filetree: '{{playbook_dir}}/{{src}}'
-      become: no
+        src: "{{ item.src }}"
+        dest: "{{ dest | default(tmpfolder.path) }}/{{ item.path }}"
+        owner: "{{ owner | default(ansible_user_id) }}"
+        group: "{{ group | default(ansible_user_id) }}"
+        mode: "{{ mode | default(item.mode) }}"
+      when: item.state == "file" and not item.src.endswith(".template")
+      loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
-    - name: Recreate symlinks {{src}} to {{ dest | default(tmpfolder.path) }}
+    - name: Template files from {{src}} to {{ dest | default(tmpfolder.path) }}
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ dest | default(tmpfolder.path) }}/{{ item.path | replace('.template', '') }}" # Remove template specific file extension
+        owner: "{{ owner | default(ansible_user_id) }}"
+        group: "{{ group | default(ansible_user_id) }}"
+        mode: "{{ mode | default(item.mode) }}"
+      when: item.state == "file" and item.src.endswith(".template")
+      loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
+
+
+    - name: Recreate symlinks from {{src}} to {{ dest | default(tmpfolder.path) }}
       file:
-        src: '{{ item.src }}'
-        dest: '{{ dest | default(tmpfolder.path) }}/{{ item.path }}'
+        src: "{{ item.src }}"
+        dest: "{{ dest | default(tmpfolder.path) }}/{{ item.path }}"
         state: link
         force: yes
-        mode: '{{ item.mode }}'
-      when: item.state == 'link'
-      with_filetree: '{{playbook_dir}}/{{src}}'
-      become: no
+        mode: "{{ mode | default(item.mode) }}"
+      when: item.state == "link"
+      loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
+
+  rescue:
+    - name: Gather stats for root path
+      stat: path={{ dest | default(tmpfolder.path) }}
+      register: dest_stats
+
+    - name: Show status for root path
+      debug: msg={{ dest_stats }}
+
+    - name: Show root path to copy file-hierarchy to
+      debug: msg="{{ dest | default(tmpfolder.path) }}"
+
+    - name: Remove already written files
+      file:
+        path: "{{ dest | default(tmpfolder.path) }}"
+        state: absent
