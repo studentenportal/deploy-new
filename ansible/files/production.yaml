@@ -80,6 +80,36 @@ services:
 
   # TODO: Add front-end proxy
 
+  mail-exchange:
+    image: tianon/exim4
+
+    volumes:
+      - "/data/docker/mail-exchange/mailname:/etc/mailname:ro"
+      - "/data/docker/mail-exchange/email-addresses:/etc/email-addresses:ro"
+      - "/data/docker/mail-exchange/update-exim.conf:/etc/exim4/update-exim4.conf.conf"
+      - "/data/docker/mail-exchange/30_exim4-config:/etc/exim4/conf.d/retry/30_exim4-config:ro"
+
+    networks:
+      application:
+        aliases:
+          - mail-server
+
+    mode: replicated
+    replicas: 1
+    restart_policy:
+      condition: on-failure
+      delay: 1s
+      max_attempts: 5
+      window: 20s
+
+    resources:
+      limits:
+        cpus: "0.25"
+        memory: "500M"
+      reservations:
+        cpus: "0.125"
+        memory: "250M"
+
 # PhpMyAdmin - Admin console for database (provision)
   phpMyAdmin:
     image: phpmyadmin/phpmyadmin
