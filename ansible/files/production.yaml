@@ -45,7 +45,7 @@ services:
     image: studentenportal/dev:latest
 
     volumes:
-      - ./:/srv/www/studentenportal
+      - "/data/docker/studentenportal:/srv/www/studentenportal"
 
     environment:
       DB_HOST: "database"
