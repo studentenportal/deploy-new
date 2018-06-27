@@ -56,7 +56,9 @@
         owner: "{{ owner | default(ansible_user_id) }}"
         group: "{{ group | default(ansible_user_id) }}"
         mode: "{{ mode | default(item.mode) }}"
-      when: item.state == "file" and not item.src.endswith(".template")
+      when:
+        - item.state == "file"
+        - not item.src.endswith(".template")
       loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
     - name: Template files from {{src}} to {{ dest | default(tmpfolder.path) }}
@@ -66,7 +68,9 @@
         owner: "{{ owner | default(ansible_user_id) }}"
         group: "{{ group | default(ansible_user_id) }}"
         mode: "{{ mode | default(item.mode) }}"
-      when: item.state == "file" and item.src.endswith(".template")
+      when:
+        - item.state == "file"
+        - item.src.find(".template") != -1
       loop: "{{ query('filetree', '{{playbook_dir}}/{{ src }}') }}"
 
 
@@ -91,6 +95,7 @@
     - name: Show root path to copy file-hierarchy to
       debug: msg="{{ dest | default(tmpfolder.path) }}"
 
+      # TODO: Change this from just removing to copy before action and move-back to original place here
     - name: Remove already written files
       file:
         path: "{{ dest | default(tmpfolder.path) }}"
