@@ -19,6 +19,7 @@
   remote_user: "<<< host username >>>"
   vars:
     STACK_FILE: "production.yaml"
+    project-domain: "studentenportal.ch"
 
   tasks:
   - name: Include password file
