@@ -6,6 +6,8 @@ Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
 
 Vagrant.configure("2") do |config|
 
+ config.vm.define "vagrant"
+
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "nrclark/xenial64-minimal-libvirt"
@@ -24,6 +26,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook = "provision.yaml"
-    ansible.sudo = true
+    ansible.inventory_path = "inventory/vagrant"
   end
 end

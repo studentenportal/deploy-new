@@ -2,7 +2,7 @@
 # Servers (with connection parameters)
 ###############################################################################
 # Hostname                 Parameters
-vshsr01.nine.ch            ansible_ssh_user=root
+vagrant                    ansible_become=true ansible_connection=local
 
 
 ###############################################################################
@@ -10,15 +10,14 @@ vshsr01.nine.ch            ansible_ssh_user=root
 ###############################################################################
 
 [ubuntu]
-vshsr01.nine.ch
+vagrant
 
 [web_proxy]
-vshsr01.nine.ch
+vagrant
 
 ###############################################################################
 # Infrastructure location
 ###############################################################################
 
-# Nine, Zürich
-[nine]
-vshsr01.nine.ch
+[localhost]
+vagrant
