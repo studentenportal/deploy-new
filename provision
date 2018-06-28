@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Forces colors on the output pane
+export ANSIBLE_FORCE_COLOR=true
+
+# Execute playbook
+exec ansible-playbook ./provision.yaml $@
+
+# --vault-id @prompt --vault-password-file ./secrets.yaml $@
