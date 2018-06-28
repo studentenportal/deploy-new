@@ -1,12 +1,6 @@
 ---
-# Firewalls
-#- hosts: ubuntu
-#  roles:
-#  - ufw
-
-# System base setup
 - hosts: all
   roles:
   - base
   - docker
-  - ufw
+  - firewall

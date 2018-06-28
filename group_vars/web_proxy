@@ -1,5 +1,5 @@
 ---
-ufw:
+firewall:
   ports_allow_incoming:
     - port: 80
       proto: tcp
