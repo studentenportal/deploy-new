@@ -1,0 +1,10 @@
+---
+# Firewalls
+#- hosts: ubuntu
+#  roles:
+#  - ufw
+
+# System base setup
+- hosts: all
+  roles:
+  - base
