@@ -22,10 +22,6 @@
 # Activating docker swarm mode
 
 # prepare and dependencies
-
-- name: Update APT cache
-  apt: update-cache=yes
-
 - name: Installs docker dependencies
   apt:
     name: "{{ item }}"
@@ -42,18 +38,18 @@
   # Docker install
 - name: Installs docker public key
   apt_key:
-    url: "https://download.docker.com/linux/debian/gpg"
+    url: "https://download.docker.com/linux/ubuntu/gpg"
     id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
     state: present
 
 - name: Installs docker repository
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_lsb.codename }} stable"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
     filename: "docker-stable"
 
 - name: Install docker
   apt:
-    name: "docker-ce=18.03.1~ce-0~debian"
+    name: "docker-ce"
     state: present
     update_cache: yes
   ignore_errors: yes
@@ -70,7 +66,7 @@
     dest: "/etc/docker/deamon.json"
     owner: root
     group: root
-    mode: u=rw, g=, o=
+    mode: 0600
   become: yes
   register: docker_daemon_config
 
