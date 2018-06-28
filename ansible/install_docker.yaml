@@ -68,36 +68,14 @@
         state: started
         enabled: yes
 
-      # Administration utilities install
-#    - name: Installs python for ansible
-#      apt:
-#        name: "{{ item }}"
-#        state: latest
-#      become: yes
-#      with_items:
-#        - python
-#        - python-pip
-#      tags: ansible-inst
-
-#    - name: Installs ansible admin dependencies
-#      command: "pip install {{ item }}"
-#      become: yes
-#      ignore_errors: yes
-#      loop:
-#        - docker
-#        - docker-compose
-#      become: no
-
-      # Allow sudo-less docker management
-    - name: Add docker user group
-      group: name=docker state=present
-
-    - name: Add current user to docker group
-      user:
-        name: "{{ nsible_user_id  }}"
-        append: yes
-        groups:
-          - docker
+    - name: Template demon config
+      copy:
+        src: "files/docker-config/deamon.json"
+        dest: "/etc/docker/deamon.json"
+        owner: root
+        group: root
+        mode: u=rw, g=, o=
+      become: yes
 
     - name: Restart docker to finish install
       service:

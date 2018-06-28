@@ -20,7 +20,6 @@ services:
             - database
             - postgres
 
-    # TODO: Add SysLog logging service
 
     deploy:
       mode: replicated
