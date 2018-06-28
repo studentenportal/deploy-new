@@ -1,0 +1,7 @@
+---
+ufw:
+  ports_allow_incoming:
+    - port: 80
+      proto: tcp
+    - port: 443
+      proto: tcp
