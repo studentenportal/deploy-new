@@ -1,0 +1,11 @@
+---
+
+- name: Open firewall ports
+  include_role: name=firewall tasks_from=open-port
+  vars:
+      direction: in
+      port: "{{ item }}"
+      proto: tcp
+  loop:
+    - 80
+    - 443
