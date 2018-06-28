@@ -13,9 +13,5 @@
 - name: Limit incomming ssh conection tries
   ufw: rule=limit port=ssh proto=tcp
 
-- name: Open up incoming ports.
-  ufw: rule=allow direction=in port={{ item.port }} proto={{ item.proto }}
-  loop: "{{ ufw.ports_allow_incoming }}"
-
 - name: Make sure firewall is reloaded and enabled.
   ufw: state=enabled
