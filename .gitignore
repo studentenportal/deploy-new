@@ -1,6 +1,9 @@
 # Ansible files
 *.retry
 
+# Vagrant files
+.vagrant/
+
 # IntelliJ IDEA
 .idea/
 deploy-new.iml
