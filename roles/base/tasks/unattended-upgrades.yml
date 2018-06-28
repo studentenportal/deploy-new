@@ -1,0 +1,26 @@
+---
+- name: Install unattended-upgrade packages
+  apt:
+      pkg: "{{ item }}"
+      state:  present
+      update-cache: yes
+      cache_valid_time: 3600
+  loop:
+    - unattended-upgrades
+    - update-notifier-common
+
+- name: Create APT auto-upgrades configuration
+  copy:
+    src: auto-upgrades
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create unattended-upgrades configuration
+  copy:
+    src: unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: 0644

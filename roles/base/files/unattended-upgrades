@@ -1,0 +1,13 @@
+// Split updates into minimal steps to simplify interruption of the process
+Unattended-Upgrade::MinimalSteps "true";
+
+// Send mails on problems to root. 'mailx' must be installed.
+Unattended-Upgrade::Mail "root";
+Unattended-Upgrade::MailOnlyOnError "true";
+
+// Equivalent to apt-get autoremove
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+
+// Auto Reboot
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";
