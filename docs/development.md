@@ -11,6 +11,9 @@ vagrant up
 # You can rerun the ansible configuration with
 vagrant provision
 
+# Update files in VM:
+vagrant rsync
+
 # Destroy the VM if you are done:
 vagrant destroy
 ```
