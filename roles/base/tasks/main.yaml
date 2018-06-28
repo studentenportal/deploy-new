@@ -16,3 +16,6 @@
     - vim-nox
     - curl
     - dnsutils
+
+- name: Configure unattended upgrades
+  include: unattended-upgrades.yml
