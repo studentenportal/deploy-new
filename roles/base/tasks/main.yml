@@ -9,7 +9,7 @@
     - python-psycopg2
 
 - name: Install system utilities
-  apt: pkg={{ item }} update-cache=yes cahce_valid_time=3600
+  apt: pkg={{ item }} update-cache=yes cache_valid_time=3600
   with_items:
     - git
     - mlocate
