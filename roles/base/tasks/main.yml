@@ -2,7 +2,7 @@
 
 - name: Install packages needed for ansible.
   apt: pkg={{ item }} update-cache=yes cache_valid_time=3600
-  with_items:
+  loop:
     - python
     - python-apt
     - python-pycurl
@@ -10,7 +10,7 @@
 
 - name: Install system utilities
   apt: pkg={{ item }} update-cache=yes cache_valid_time=3600
-  with_items:
+  loop:
     - git
     - mlocate
     - vim-nox
