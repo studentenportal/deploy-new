@@ -1,0 +1,2 @@
+- name: "Open port {{ port }}/{{ proto }} {{ direction }}"
+  ufw: rule=allow direction={{ direction }} port={{ port }} proto={{ proto }}
