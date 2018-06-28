@@ -8,3 +8,4 @@
 - hosts: all
   roles:
   - base
+  - docker
