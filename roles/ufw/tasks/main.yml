@@ -1,3 +1,9 @@
+- name: Install ufw
+  apt:
+      pkg: ufw
+      update-cache: yes
+      cache_valid_time: 3600
+
 - name: Allow everything and enable UFW
   ufw:
     state: enabled
@@ -5,7 +11,7 @@
 
 - name: Deny incomming policy
   ufw:
-    direction: incomming
+    direction: incoming
     policy: deny
 
 - ufw:
@@ -17,7 +23,7 @@
     port: ssh
     proto: tcp
 
-- name: Allow all access to http ports
+- name: Allow access to http ports
   ufw:
     rule: allow
     port: "{{ item }}"
