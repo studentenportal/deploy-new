@@ -12,9 +12,6 @@ vshsr01.nine.ch            ansible_ssh_user=root
 [ubuntu]
 vshsr01.nine.ch
 
-[web_proxy]
-vshsr01.nine.ch
-
 ###############################################################################
 # Infrastructure location
 ###############################################################################

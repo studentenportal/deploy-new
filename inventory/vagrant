@@ -12,9 +12,6 @@ vagrant                    ansible_become=true ansible_connection=local
 [ubuntu]
 vagrant
 
-[web_proxy]
-vagrant
-
 ###############################################################################
 # Infrastructure location
 ###############################################################################
