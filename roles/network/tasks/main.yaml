@@ -1,0 +1,12 @@
+---
+
+- name: Set the hostname of the machine
+  hostname: name={{hostname}}
+
+- name: Set Kernel settings with sysctl
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    reload: yes
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ sysctl_settings }}"
