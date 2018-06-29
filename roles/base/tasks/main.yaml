@@ -1,7 +1,10 @@
 ---
 
 - name: Install packages needed for ansible.
-  apt: pkg={{ item }} update-cache=yes cache_valid_time=3600
+  apt:
+    pkg: "{{ item }}"
+    update-cache: yes
+    cache_valid_time: 3600
   loop:
     - python
     - python-apt
@@ -9,7 +12,10 @@
     - python-psycopg2
 
 - name: Install system utilities
-  apt: pkg={{ item }} update-cache=yes cache_valid_time=3600
+  apt:
+    name: "{{ item }}"
+    update-cache: yes
+    cache_valid_time: 3600
   loop:
     - git
     - mlocate
