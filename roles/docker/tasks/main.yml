@@ -59,10 +59,10 @@
     state: started
     enabled: yes
 
-- name: Template demon config
+- name: Template daemon config
   copy:
-    src: "deamon.json"
-    dest: "/etc/docker/deamon.json"
+    src: "daemon.json"
+    dest: "/etc/docker/daemon.json"
     owner: root
     group: root
     mode: 0600
