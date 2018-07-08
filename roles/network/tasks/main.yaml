@@ -10,3 +10,11 @@
     reload: yes
     state: "{{ item.state | default('present') }}"
   loop: "{{ sysctl_settings }}"
+
+- name: Install nmcli components
+  apt:
+    name: "libnm-glib-dev"
+    state: latest
+    update-cache: yes
+    cache_valid_time: 3600
+
