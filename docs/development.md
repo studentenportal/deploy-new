@@ -51,3 +51,7 @@ operating systems.
 
 For more information and a detailed installation guide, have a look at
 the [vagrant-libvirt github repository](www.github.com/vagrant-libvirt/vagrant-libvirt).
+
+## Server Deployment
+
+Currently not implemented, only deployment to vagrant is running.
