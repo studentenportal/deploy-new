@@ -55,3 +55,9 @@ the [vagrant-libvirt github repository](www.github.com/vagrant-libvirt/vagrant-l
 ## Server Deployment
 
 Currently not implemented, only deployment to vagrant is running.
+
+## Encryption
+
+The secrets are all saved in plain sight. An ansible-vault secrets file
+stores them encrypted with a password. This file is checked in the git
+repository, therefore the passwords are versioned.
