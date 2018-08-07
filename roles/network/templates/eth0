@@ -1,0 +1,8 @@
+iface eth0 inet dhcp
+
+# Unfortunately, DHCP does not configure IPv6 automatically.
+# Therefore, static assignment of IPv6 configuration
+
+iface eth0 inet6 static
+    address 2a02:418:1003:1e::1::/64
+    gateway fe80::1
