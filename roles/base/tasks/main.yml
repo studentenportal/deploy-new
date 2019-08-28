@@ -1,0 +1,7 @@
+---
+- import_tasks: firewall.yml
+- import_tasks: packages.yml
+- import_tasks: sshd.yml
+- import_tasks: fail2ban.yml
+- import_tasks: unattended-upgrades.yml
+- import_tasks: reboot.yml

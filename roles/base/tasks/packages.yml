@@ -1,0 +1,17 @@
+---
+- name: ensure latest package versions are installed
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+  when: package_update
+
+- name: remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+  when: package_update
+
+- name: remove useless packages from the cache
+  apt:
+    autoclean: yes
+  when: package_update

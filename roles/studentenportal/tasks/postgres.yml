@@ -1,0 +1,24 @@
+---
+- name: ensure studentenportal network exists
+  docker_network:
+    name: studentenportal
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"
+
+- name: ensure the postgres container runs
+  docker_container:
+    name: postgres
+    image: postgres:9.3-alpine
+    pull: true
+    state: started
+    network_mode: bridge
+    volumes:
+      - /var/studentenportal/db:/var/lib/postgresql/data
+    env:
+      POSTGRES_USER: "{{ postgres_user }}"
+      POSTGRES_PASSWORD: "{{ postgres_password }}"
+      POSTGRES_DB: "{{ postgres_database }}"
+    networks:
+      - name: studentenportal
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"

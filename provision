@@ -4,6 +4,6 @@
 export ANSIBLE_FORCE_COLOR=true
 
 # Execute playbook
-exec ansible-playbook ./provision.yaml $@
+exec ansible-playbook ./provision.yml $@
 
 # --vault-id @prompt --vault-password-file ./secrets.yaml $@

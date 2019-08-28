@@ -1,0 +1,12 @@
+---
+- hosts: all
+  roles:
+    - role: base
+      tags: [base]
+
+- hosts: studentenportal
+  roles:
+    - role: nickjj.docker
+      tags: [docker]
+    - role: studentenportal
+      tags: [studentenportal]

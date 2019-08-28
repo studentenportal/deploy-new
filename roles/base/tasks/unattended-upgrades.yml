@@ -1,15 +1,15 @@
 ---
-- name: Install unattended-upgrade packages
+- name: ensure that unattended-upgrade packages are installed
   apt:
-      name: "{{ item }}"
-      state:  present
-      update-cache: yes
-      cache_valid_time: 3600
-  loop:
-    - unattended-upgrades
-    - update-notifier-common
+    name: "{{ packages }}"
+    state: present
+    cache_valid_time: "{{ apt_cache_time | int }}"
+  vars:
+    packages:
+      - unattended-upgrades
+      - update-notifier-common
 
-- name: Create APT {{ item.src }} configuration
+- name: ensure apt config {{ item.src }} exists
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -17,5 +17,8 @@
     group: root
     mode: 0644
   loop:
-    - {src: "auto-upgrades", dest: "/etc/apt/apt.conf.d/20auto-upgrades"}
-    - {src: "unattended-upgrades", dest: "/etc/apt/apt.conf.d/50unattended-upgrades"}
+    - { src: "auto-upgrades", dest: "/etc/apt/apt.conf.d/20auto-upgrades" }
+    - {
+        src: "unattended-upgrades",
+        dest: "/etc/apt/apt.conf.d/50unattended-upgrades",
+      }

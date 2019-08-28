@@ -1,4 +1,0 @@
-# This file can be included in other roles to open firewall ports.
----
-- name: "Open port {{ port }}/{{ proto }} {{ direction }}"
-  ufw: rule=allow direction={{ direction }} port={{ port }} proto={{ proto }}
