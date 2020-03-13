@@ -1,6 +1,8 @@
 # deploy-new
 New deployment setup, which is based on docker.
 
+**NOTE: This repository is deprecated - see [deploy2020](https://github.com/studentenportal/deploy2020) for what's actually running on studentenportal.ch!**
+
 
 # Infrastructure
 
