@@ -1,0 +1,46 @@
+---
+- name: ensure traefik directory exists
+  file: path=/etc/traefik state=directory
+
+- name: ensure acme.json exists
+  copy:
+    content: ""
+    dest: /etc/traefik/acme.json
+    force: no
+    mode: 0600
+
+- name: ensure traefik config exists
+  template:
+    src: traefik.toml.j2
+    dest: /etc/traefik/traefik.toml
+
+- name: ensure web network exists
+  docker_network:
+    name: web
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"
+
+- name: ensure the traefik container runs
+  docker_container:
+    name: traefik
+    image: traefik:1.7
+    state: started
+    pull: true
+    published_ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/traefik/traefik.toml:/traefik.toml
+      - /etc/traefik/acme.json:/acme.json
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"
+
+- name: ensured http/https is allowed
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  with_items:
+    - 80
+    - 443

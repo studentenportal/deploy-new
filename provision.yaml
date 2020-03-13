@@ -1,7 +1,0 @@
----
-- hosts: all
-  roles:
-  - base
-  - docker
-  - firewall
-  - studentenportal

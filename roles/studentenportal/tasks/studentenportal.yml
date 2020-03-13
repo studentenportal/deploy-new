@@ -1,0 +1,31 @@
+---
+- name: ensure the studentenportal container runs
+  docker_container:
+    name: studentenportal
+    image: thde/studentenportal
+    pull: true
+    state: started
+    network_mode: bridge
+    exposed_ports:
+      - 8000
+    labels:
+      traefik.enable: "true"
+      traefik.basic.frontend.rule: Host:studentenportal.{{ inventory_hostname }}
+    env:
+      DB_HOST: "{{ postgres_host }}"
+      DB_USER: "{{ postgres_user }}"
+      DB_PASSWORD: "{{ postgres_password }}"
+      DB_NAME: "{{ postgres_database }}"
+      SECRET_KEY: "{{ django_secret_key }}"
+      EMAIL_HOST: "{{ django_mail_host }}"
+      EMAIL_PORT: "{{ django_mail_port }}"
+      EMAIL_HOST_USER: "{{ django_mail_host_user }}"
+      EMAIL_HOST_PASSWORD: "{{ django_mail_host_password }}"
+      EMAIL_USE_TLS: "{{ django_mail_tls }}"
+    networks:
+      - name: web
+      - name: studentenportal
+        links:
+          - postgres
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"

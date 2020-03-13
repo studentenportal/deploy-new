@@ -1,0 +1,39 @@
+---
+- name: define preffered key exchange algorithms
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^KexAlgorithms"
+    line: KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+  notify: restart sshd
+
+- name: define preffered ciphers
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^Ciphers"
+    line: Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+  notify: restart sshd
+
+- name: define preffered message authentication codes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^MACs"
+    line: MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+  notify: restart sshd
+
+#- name: only allow root to login through ssh
+#  lineinfile:
+#    path: /etc/ssh/sshd_config
+#    regexp: "^AllowUsers"
+#    line: AllowUsers root
+#  notify: restart sshd
+
+- name: ensure ssh is allowed
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: ensure ssh gets limited
+  ufw:
+    rule: limit
+    port: ssh
+    proto: tcp

@@ -1,0 +1,4 @@
+---
+- import_tasks: traefik.yml
+- import_tasks: postgres.yml
+- import_tasks: studentenportal.yml

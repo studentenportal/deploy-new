@@ -1,0 +1,11 @@
+---
+- name: ensure ssh is allowed
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: ensure ufw is enabled
+  ufw:
+    state: enabled
+    direction: incoming
+    policy: deny
